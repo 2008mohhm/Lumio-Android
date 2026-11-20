@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,17 +27,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-            - name: Setup Gradle
+      - name: Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Upload APK
+      - name: Build Lumio APK
+        run: gradle assembleDebug
 
-      - name: Upload APK
+      - name: Upload Lumio APK
         uses: actions/upload-artifact@v4
         with:
           name: Lumio-APK
-          path: |
-            **/build/outputs/apk/debug/*.apk
+          path: '**/build/outputs/apk/debug/*.apk'
           if-no-files-found: error
