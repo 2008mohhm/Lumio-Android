@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.app.mobilebuild"
-    compileSdk = 34
+    // AndroidX Core 1.15 requires API 35 metadata at build time.
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.app.mobilebuild"
