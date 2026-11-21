@@ -6,7 +6,6 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -14,10 +13,8 @@ import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
-/** Posts a quiet, ongoing notification while Lumio is in the background. */
 class LumioApplication : Application(), Application.ActivityLifecycleCallbacks {
     private var startedActivities = 0
-    private var permissionRequestInProgress = false
 
     override fun onCreate() {
         super.onCreate()
@@ -27,22 +24,12 @@ class LumioApplication : Application(), Application.ActivityLifecycleCallbacks {
 
     override fun onActivityResumed(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
-            !permissionRequestInProgress
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
-            permissionRequestInProgress = true
-            activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        activity: Activity,
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
-            permissionRequestInProgress = false
+            activity.requestPermissions(
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NOTIFICATION_PERMISSION_REQUEST
+            )
         }
     }
 
@@ -60,13 +47,14 @@ class LumioApplication : Application(), Application.ActivityLifecycleCallbacks {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "إشعار Lumio في الخلفية",
+                "Lumio",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "يبقي اختصار Lumio ظاهرًا في الإشعارات أثناء استخدام تطبيق آخر"
+                description = "اختصار Lumio أثناء عمله في الخلفية"
                 setShowBadge(false)
             }
-            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(channel)
         }
     }
 
@@ -84,10 +72,11 @@ class LumioApplication : Application(), Application.ActivityLifecycleCallbacks {
             openAppIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_lumio_notification)
             .setContentTitle("Lumio")
-            .setContentText("جاهز للترجمة — اضغط للعودة إلى التطبيق")
+            .setContentText("اضغط للعودة إلى مترجم الشاشة")
             .setContentIntent(pendingIntent)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -104,7 +93,7 @@ class LumioApplication : Application(), Application.ActivityLifecycleCallbacks {
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
     override fun onActivityDestroyed(activity: Activity) = Unit
 
-    private companion object {
+    companion object {
         const val CHANNEL_ID = "lumio_background"
         const val NOTIFICATION_ID = 2101
         const val NOTIFICATION_PERMISSION_REQUEST = 2102
