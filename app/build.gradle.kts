@@ -42,4 +42,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+
+    // On-device translation. Models are downloaded by ML Kit when first needed.
+    implementation("com.google.mlkit:translate:17.0.3")
 }
